@@ -16,7 +16,6 @@ const registerUser = asyncHandler( async (req,res) => {
     // return response
     
     const { fullname, email, username, password } = req.body
-    console("Email: ",email);
 
     if(
         [fullname, email, username, password].some((field) => field?.trim()==="")
@@ -24,7 +23,7 @@ const registerUser = asyncHandler( async (req,res) => {
         throw new ApiError(400,"All fields are required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
 
@@ -34,17 +33,25 @@ const registerUser = asyncHandler( async (req,res) => {
 
     // files exceses given by multer in req.files
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    //As this will not check if coverImage is not present
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+    //correct approach: 
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if (!avatarLocalPath){
         throw new ApiError(400,"Avatar file is required")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = uploadOnCloudinary(coverImageLocalPath)
-
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+ 
     if (!avatar){
-        throw new ApiError(400,"Avatar file is required")
+        throw new ApiError(400,"avatar file is required")
     }
 
     const user = await User.create({
@@ -71,4 +78,4 @@ const registerUser = asyncHandler( async (req,res) => {
     )
 })
 
-export {registerUser}
+export { registerUser }

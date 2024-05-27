@@ -5,7 +5,7 @@ import connectDB from "./db/database.js";
 import { app } from "./app.js";
 
 configDotenv({
-    path: './env'
+    path: './.env'
 })
 
 connectDB()
