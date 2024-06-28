@@ -14,4 +14,5 @@ router.route("/c/:commentId").delete(verifyJWT,deleteComment).patch(updateCommen
 router.route("/comments").post(verifyJWT,addComment);
 router.route("/c/:commentId").put(verifyJWT,updateComment);
 
+
 export default router
